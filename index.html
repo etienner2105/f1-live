@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Classement F1</title>
+<style>
+/* Layout: hero figure + one evolution chart, then standings tables side by side. System sans only, neutral grays, six validated categorical hues for the six title contenders. */
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10); --bar:#9a9890; --wash:rgba(11,11,11,.05);
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --bar:#6b6a64; --wash:rgba(255,255,255,.06);
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0ca30c;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --page:#0d0d0d; --surface:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+  --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10); --bar:#6b6a64; --wash:rgba(255,255,255,.06);
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#0ca30c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);font:15px/1.5 var(--font);
+  padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.5rem;line-height:1.2;margin:0;font-weight:650;text-wrap:balance}
+h2{font-size:1rem;margin:0;font-weight:650}
+p{margin:0}
+.sub{color:var(--ink2);max-width:62ch}
+.card{background:var(--surface);border-radius:12px;padding:16px;box-shadow:0 0 0 1px var(--ring);min-width:0}
+.top{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
+.hero{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 32px}
+.hero .big{font-size:4.5rem;line-height:1;font-weight:650;letter-spacing:-.02em}
+.hero .lbl{color:var(--ink2);padding-bottom:6px;max-width:28ch}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--grid)}
+.fact .k{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.fact .v{font-weight:600}
+.fact .d{color:var(--ink2);font-size:.9rem}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-bottom:8px}
+.seg{display:inline-flex;border-radius:8px;box-shadow:0 0 0 1px var(--ring);overflow:hidden}
+.seg button{font:inherit;font-size:.85rem;border:0;background:transparent;color:var(--ink2);padding:6px 12px;cursor:pointer}
+.seg button+button{box-shadow:-1px 0 0 var(--ring)}
+.seg button[aria-checked="true"]{background:var(--ink);color:var(--surface);font-weight:600}
+button:focus-visible,.chartbox:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 8px;margin:8px 0 4px}
+.legend button{font:inherit;font-size:.85rem;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:8px;
+  background:transparent;color:var(--ink);padding:4px 8px;cursor:pointer;box-shadow:0 0 0 1px var(--ring)}
+.legend button[aria-pressed="false"]{color:var(--muted);text-decoration:line-through;box-shadow:none}
+.legend button[aria-pressed="false"] .key{opacity:.35}
+.key{display:inline-block;width:16px;height:0;border-top:2px solid;border-radius:2px}
+.chartbox{position:relative;touch-action:pan-y;border-radius:8px}
+.chartbox svg{display:block;width:100%;height:auto;overflow:visible}
+.chartbox text{font-family:var(--font);font-size:11px;fill:var(--muted)}
+.chartbox text.lab{fill:var(--ink2);font-size:12px}
+.tip{position:absolute;top:8px;pointer-events:none;background:var(--surface);border-radius:8px;padding:8px 10px;
+  box-shadow:0 0 0 1px var(--ring),0 4px 14px rgba(0,0,0,.14);font-size:.8rem;min-width:170px;z-index:2}
+.tip[hidden]{display:none}
+.tip .t{font-weight:600;margin-bottom:4px}
+.tip .r{display:flex;align-items:center;gap:8px;padding:1px 0}
+.tip .r b{font-weight:650;min-width:2.6em;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tip .r i{font-style:normal;color:var(--muted);min-width:2.4em;font-variant-numeric:tabular-nums}
+.tip .r span.n{color:var(--ink2)}
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--ink2);font-size:.9rem;width:max-content;max-width:100%}
+.scroll{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{padding:6px 8px;text-align:right;white-space:nowrap}
+th{font-weight:600;color:var(--ink2);border-bottom:1px solid var(--axis);font-size:.8rem}
+td{border-bottom:1px solid var(--grid)}
+th:first-child,td:first-child,th.l,td.l{text-align:left}
+.cols{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px;align-items:start}
+@media (max-width:820px){.cols{grid-template-columns:minmax(0,1fr)}.hero .big{font-size:3.5rem}}
+.st td{font-variant-numeric:tabular-nums}
+.st td.pos{color:var(--muted);width:2em}
+.st td.pt{font-weight:650;width:3.5em}
+.st td.bar{width:28%;min-width:60px;padding-left:12px}
+.bar i{display:block;height:6px;background:var(--bar);border-radius:0 3px 3px 0}
+.tag{display:inline-block;font-size:.72rem;font-weight:600;border-radius:6px;padding:1px 6px;margin-left:8px;box-shadow:0 0 0 1px var(--axis);color:var(--ink2);vertical-align:1px}
+.note{color:var(--muted);font-size:.82rem;margin-top:10px}
+.src{color:var(--ink2);font-size:.85rem}
+.src ul{margin:6px 0 0;padding-left:18px}
+.src a{color:var(--ink2)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.refresh{font:inherit;font-size:.85rem;border:0;border-radius:8px;background:transparent;color:var(--ink);padding:6px 12px;cursor:pointer;box-shadow:0 0 0 1px var(--ring)}
+.refresh:disabled{color:var(--muted);cursor:default}
+.err{color:var(--ink);font-size:.9rem}
+.err[hidden]{display:none}
+header.head{align-items:flex-start}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <div>
+      <h1 id="h1">Classement F1</h1>
+      <p class="sub" id="status">Chargement des classements…</p>
+    </div>
+    <button type="button" class="refresh" id="refresh">Actualiser</button>
+  </header>
+
+  <p class="err card" id="err" hidden></p>
+
+  <section class="card" aria-label="Résumé">
+    <div class="hero">
+      <div class="big" id="heroPts">–</div>
+      <div class="lbl" id="heroLbl">&nbsp;</div>
+    </div>
+    <div class="facts">
+      <div class="fact"><div class="k">Constructeurs</div><div class="v" id="f1v">–</div><div class="d" id="f1d"></div></div>
+      <div class="fact"><div class="k">Dernière course</div><div class="v" id="f2v">–</div><div class="d" id="f2d"></div></div>
+      <div class="fact"><div class="k">Prochaine course</div><div class="v" id="f3v">–</div><div class="d" id="f3d"></div></div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Évolution du championnat">
+    <div class="head">
+      <h2 id="chart-title">Évolution des six premiers</h2>
+      <div class="seg" role="radiogroup" aria-label="Type de courbe">
+        <button type="button" role="radio" id="m-cum" aria-checked="true">Points cumulés</button>
+        <button type="button" role="radio" id="m-gap" aria-checked="false">Écart au leader</button>
+      </div>
+    </div>
+    <p class="sub" id="chart-sub">Points cumulés après chaque manche, sprints compris.</p>
+    <div class="legend" id="legend"></div>
+    <div class="chartbox" id="chart" tabindex="0" role="group" aria-labelledby="chart-title" aria-describedby="chart-sub">
+      <div class="tip" id="tip" hidden></div>
+    </div>
+    <details>
+      <summary>Voir les points marqués à chaque manche</summary>
+      <div class="scroll"><table id="datatable"></table></div>
+    </details>
+  </section>
+
+  <div class="cols">
+    <section class="card" aria-label="Classement pilotes">
+      <h2>Pilotes</h2>
+      <div class="scroll"><table class="st" id="drivers"></table></div>
+    </section>
+    <section class="card" aria-label="Classement constructeurs">
+      <h2>Constructeurs</h2>
+      <div class="scroll"><table class="st" id="teams"></table></div>
+    </section>
+  </div>
+
+  <section class="src">
+    <p>Données : <a href="https://api.jolpi.ca/ergast/f1/current/driverStandings.json" target="_blank" rel="noopener">API Jolpica F1</a>, mises à jour après chaque Grand Prix. La page recharge les classements à l'ouverture, puis toutes les 30 minutes tant qu'elle reste ouverte.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+'use strict';
+var API='https://api.jolpi.ca/ergast/f1/current';
+var CACHE_KEY='f1-live-model-v1';
+var NS='http://www.w3.org/2000/svg';
+
+/* ---------- data model (pure functions, no DOM) ---------- */
+//PURE_START
+function mergeRaces(lists,key){
+  var map={};
+  lists.forEach(function(races){races.forEach(function(r){
+    var m=map[r.round]||(map[r.round]={round:+r.round,name:r.raceName,items:[]});
+    (r[key]||[]).forEach(function(x){m.items.push(x);});
+  });});
+  return map;
+}
+function buildModel(ds,cs,res,spr,sched){
+  var st=ds.MRData.StandingsTable;
+  var dl=(st.StandingsLists[0]||{}).DriverStandings||[];
+  var cl=((cs.MRData.StandingsTable.StandingsLists[0])||{}).ConstructorStandings||[];
+  var rm=mergeRaces(res,'Results'), sm=mergeRaces(spr,'SprintResults');
+  var nums=Object.keys(rm).map(Number).sort(function(a,b){return a-b;});
+  var cal={};(sched||[]).forEach(function(r){cal[r.round]=r;});
+  var rounds=nums.map(function(k){
+    var c=cal[k]||{};
+    var country=(c.Circuit&&c.Circuit.Location&&c.Circuit.Location.country)||rm[k].name;
+    var win=rm[k].items.filter(function(x){return x.position==='1';})[0];
+    return {round:k,name:rm[k].name.replace(' Grand Prix',''),code:country.slice(0,3).toUpperCase(),
+      winner:win?win.Driver.givenName+' '+win.Driver.familyName:''};
+  });
+  function ptsFor(id,k){
+    var s=0;
+    rm[k].items.forEach(function(x){if(x.Driver.driverId===id)s+=+x.points;});
+    ((sm[k]||{}).items||[]).forEach(function(x){if(x.Driver.driverId===id)s+=+x.points;});
+    return s;
+  }
+  var drivers=dl.slice(0,6).map(function(d,i){
+    var pts=nums.map(function(k){return ptsFor(d.Driver.driverId,k);});
+    var s=0;
+    return {id:d.Driver.driverId,name:d.Driver.familyName,full:d.Driver.givenName+' '+d.Driver.familyName,
+      slot:i+1,pts:pts,cum:pts.map(function(p){s+=p;return s;})};
+  });
+  var next=null, now=Date.now();
+  (sched||[]).forEach(function(r){
+    if(!next&&Date.parse(r.date+'T'+(r.time||'12:00:00Z'))>now)next=r;
+  });
+  return {
+    season:st.season, total:(sched||[]).length, rounds:rounds, drivers:drivers,
+    standings:dl.map(function(d){return {pos:d.position,name:d.Driver.givenName+' '+d.Driver.familyName,
+      team:(d.Constructors&&d.Constructors[0]&&d.Constructors[0].name)||'',pts:+d.points};}),
+    teams:cl.map(function(c){return {pos:c.position,name:c.Constructor.name,pts:+c.points};}),
+    next:next?{name:next.raceName,date:next.date}:null,
+    last:rounds.length?rounds[rounds.length-1]:null
+  };
+}
+//PURE_END
+
+/* ---------- network ---------- */
+function getJSON(u){
+  return fetch(u).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+}
+function pagedRaces(path){
+  var pages=[];
+  function go(off){
+    return getJSON(API+'/'+path+'.json?limit=100&offset='+off).then(function(j){
+      var mr=j.MRData;pages.push(mr.RaceTable.Races);
+      return (off+100<+mr.total)?go(off+100):pages;
+    });
+  }
+  return go(0);
+}
+function fetchModel(){
+  var ds,cs,sched,res;
+  return getJSON(API+'/driverStandings.json')
+    .then(function(x){ds=x;return getJSON(API+'/constructorStandings.json');})
+    .then(function(x){cs=x;return getJSON(API+'.json?limit=100');})
+    .then(function(x){sched=x.MRData.RaceTable.Races;return pagedRaces('results');})
+    .then(function(x){res=x;return pagedRaces('sprint');})
+    .then(function(spr){return buildModel(ds,cs,res,spr,sched);});
+}
+
+/* ---------- state ---------- */
+var model=null, mode='cum', hidden={}, active=0, hovering=false, L=null, lastFetch=0;
+var host=document.getElementById('chart'), tip=document.getElementById('tip');
+var rounds=[], drivers=[], n=0;
+
+function el(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function val(d,i){return mode==='cum'?d.cum[i]:d.cum[i]-drivers[0].cum[i];}
+function fmt(v){return (v>0&&mode==='gap'?'+':'')+String(v).replace('-','−');}
+function niceStep(r){var p=Math.pow(10,Math.floor(Math.log10(r))),f=r/p;return (f<=1?1:f<=2?2:f<=5?5:10)*p;}
+function txt(id,s){document.getElementById(id).textContent=s;}
+
+/* ---------- chart ---------- */
+function render(){
+  var old=host.querySelector('svg'); if(old)host.removeChild(old);
+  if(!model||n<1){L=null;return;}
+  var W=Math.max(host.clientWidth,280), narrow=W<560, H=narrow?280:340;
+  var m={l:narrow?40:48,r:narrow?18:110,t:12,b:30};
+  var vis=drivers.filter(function(d){return !hidden[d.id];});
+  var lo=Infinity,hi=-Infinity;
+  vis.forEach(function(d){for(var i=0;i<n;i++){var v=val(d,i);if(v<lo)lo=v;if(v>hi)hi=v;}});
+  if(mode==='cum')lo=0; else {lo=Math.min(lo,0);hi=Math.max(hi,0);}
+  if(hi-lo<10)hi=lo+10;
+  var step=niceStep((hi-lo)/5), y0=Math.floor(lo/step)*step, y1=Math.ceil(hi/step)*step;
+  var iw=W-m.l-m.r, ih=H-m.t-m.b, span=Math.max(n-1,1);
+  function X(i){return m.l+(n===1?iw/2:i*iw/span);}
+  function Y(v){return m.t+(1-(v-y0)/(y1-y0))*ih;}
+  L={m:m,iw:iw,span:span,X:X,Y:Y,vis:vis,W:W};
+  var svg=el('svg',{viewBox:'0 0 '+W+' '+H,role:'img','aria-label':'Courbes des points des six premiers pilotes'});
+  host.insertBefore(svg,tip);
+  for(var t=y0;t<=y1+1e-9;t+=step){
+    var yy=Y(t);
+    el('line',{x1:m.l,x2:W-m.r,y1:yy,y2:yy,style:'stroke:var('+(t===0&&mode==='gap'?'--axis':'--grid')+');stroke-width:1'},svg);
+    var tx=el('text',{x:m.l-8,y:yy+4,'text-anchor':'end'},svg); tx.textContent=fmt(t);
+  }
+  if(mode==='cum')el('line',{x1:m.l,x2:W-m.r,y1:Y(0),y2:Y(0),style:'stroke:var(--axis);stroke-width:1'},svg);
+  var every=narrow?4:1;
+  for(var i=0;i<n;i++){
+    if(narrow&&i%every!==0&&i!==n-1)continue;
+    var lx=el('text',{x:X(i),y:H-10,'text-anchor':'middle'},svg); lx.textContent=rounds[i].code;
+  }
+  vis.forEach(function(d){
+    var p='';for(var i=0;i<n;i++)p+=(i?'L':'M')+X(i).toFixed(1)+','+Y(val(d,i)).toFixed(1);
+    el('path',{d:p,fill:'none',style:'stroke:var(--s'+d.slot+');stroke-width:2;stroke-linejoin:round;stroke-linecap:round'},svg);
+  });
+  vis.forEach(function(d){
+    el('circle',{cx:X(n-1),cy:Y(val(d,n-1)),r:4,style:'fill:var(--s'+d.slot+');stroke:var(--surface);stroke-width:2'},svg);
+  });
+  var lead=vis[0]&&vis[0]===drivers[0]?vis[0]:null;
+  if(lead&&!narrow){
+    var lb=el('text',{x:X(n-1)+12,y:Y(val(lead,n-1))+4,class:'lab'},svg);
+    lb.textContent=lead.name+' '+fmt(val(lead,n-1));
+  }
+  L.cross=el('line',{y1:m.t,y2:m.t+ih,style:'stroke:var(--axis);stroke-width:1',visibility:'hidden'},svg);
+  L.dots=vis.map(function(d){return el('circle',{r:4,style:'fill:var(--s'+d.slot+');stroke:var(--surface);stroke-width:2',visibility:'hidden'},svg);});
+  setActive(Math.min(active,n-1), hovering||document.activeElement===host);
+}
+
+function setActive(i,show){
+  active=i;
+  if(!L)return;
+  if(!show){L.cross.setAttribute('visibility','hidden');L.dots.forEach(function(c){c.setAttribute('visibility','hidden');});tip.hidden=true;return;}
+  var x=L.X(i);
+  L.cross.setAttribute('x1',x);L.cross.setAttribute('x2',x);L.cross.setAttribute('visibility','visible');
+  L.vis.forEach(function(d,k){var c=L.dots[k];c.setAttribute('cx',x);c.setAttribute('cy',L.Y(val(d,i)));c.setAttribute('visibility','visible');});
+  while(tip.firstChild)tip.removeChild(tip.firstChild);
+  var t=document.createElement('div');t.className='t';t.textContent=rounds[i].round+'. '+rounds[i].name;tip.appendChild(t);
+  L.vis.slice().sort(function(a,b){return val(b,i)-val(a,i);}).forEach(function(d){
+    var r=document.createElement('div');r.className='r';
+    var k=document.createElement('span');k.className='key';k.style.borderTopColor='var(--s'+d.slot+')';
+    var b=document.createElement('b');b.textContent=fmt(val(d,i));
+    var g=document.createElement('i');g.textContent=d.pts[i]?'+'+d.pts[i]:'';
+    var nm=document.createElement('span');nm.className='n';nm.textContent=d.name;
+    r.appendChild(k);r.appendChild(b);r.appendChild(g);r.appendChild(nm);tip.appendChild(r);
+  });
+  tip.hidden=false;
+  var tw=tip.offsetWidth, left=x+14;
+  if(left+tw>L.W)left=x-14-tw;
+  tip.style.left=Math.max(0,left)+'px';
+}
+function idxFromEvent(e){
+  var rect=host.getBoundingClientRect(), x=e.clientX-rect.left;
+  var i=n===1?0:Math.round((x-L.m.l)/(L.iw/L.span));
+  return Math.max(0,Math.min(n-1,i));
+}
+host.addEventListener('pointermove',function(e){if(!L)return;hovering=true;setActive(idxFromEvent(e),true);});
+host.addEventListener('pointerdown',function(e){if(!L)return;hovering=true;setActive(idxFromEvent(e),true);});
+host.addEventListener('pointerleave',function(){hovering=false;setActive(active,document.activeElement===host);});
+host.addEventListener('focus',function(){setActive(active,true);});
+host.addEventListener('blur',function(){setActive(active,hovering);});
+host.addEventListener('keydown',function(e){
+  if(!L)return;
+  var i=active;
+  if(e.key==='ArrowLeft')i=Math.max(0,i-1);
+  else if(e.key==='ArrowRight')i=Math.min(n-1,i+1);
+  else if(e.key==='Home')i=0; else if(e.key==='End')i=n-1; else return;
+  e.preventDefault();setActive(i,true);
+});
+
+/* ---------- legend, mode toggle ---------- */
+var lg=document.getElementById('legend');
+function buildLegend(){
+  while(lg.firstChild)lg.removeChild(lg.firstChild);
+  drivers.forEach(function(d){
+    var b=document.createElement('button');b.type='button';b.setAttribute('aria-pressed',hidden[d.id]?'false':'true');
+    var k=document.createElement('span');k.className='key';k.style.borderTopColor='var(--s'+d.slot+')';
+    var t=document.createElement('span');t.textContent=d.full;
+    b.appendChild(k);b.appendChild(t);
+    b.addEventListener('click',function(){
+      var on=!hidden[d.id], shown=drivers.filter(function(x){return !hidden[x.id];}).length;
+      if(on&&shown<=1)return;
+      if(on)hidden[d.id]=true;else delete hidden[d.id];
+      b.setAttribute('aria-pressed',on?'false':'true');
+      render();
+    });
+    lg.appendChild(b);
+  });
+}
+var mc=document.getElementById('m-cum'), mg=document.getElementById('m-gap');
+function setMode(m){
+  mode=m;mc.setAttribute('aria-checked',m==='cum');mg.setAttribute('aria-checked',m==='gap');
+  var lead=drivers[0]?drivers[0].name:'le leader';
+  txt('chart-sub',m==='cum'?'Points cumulés après chaque manche, sprints compris.'
+    :'Points de chaque pilote moins ceux de '+lead+' après chaque manche. Au-dessus de zéro, le pilote devance le leader.');
+  render();
+}
+mc.addEventListener('click',function(){setMode('cum');});
+mg.addEventListener('click',function(){setMode('gap');});
+
+/* ---------- tables ---------- */
+function clear(node){while(node.firstChild)node.removeChild(node.firstChild);}
+function cell(tr,text,cls){var td=document.createElement('td');if(cls)td.className=cls;td.textContent=text;tr.appendChild(td);return td;}
+function head(tb,cols,left){
+  clear(tb);var h=document.createElement('thead'),r=document.createElement('tr');
+  cols.forEach(function(s,i){var th=document.createElement('th');th.textContent=s;if(left.indexOf(i)>=0)th.className='l';r.appendChild(th);});
+  h.appendChild(r);tb.appendChild(h);var b=document.createElement('tbody');tb.appendChild(b);return b;
+}
+function fillStandings(id,rows,withTeam){
+  var cols=withTeam?['Pos.','Pilote','Écurie','Pts','']:['Pos.','Écurie','Pts',''];
+  var body=head(document.getElementById(id),cols,withTeam?[1,2]:[1]);
+  var max=rows.length?Math.max(rows[0].pts,1):1;
+  rows.forEach(function(r){
+    var tr=document.createElement('tr');
+    cell(tr,r.pos,'pos');cell(tr,r.name,'l');
+    if(withTeam){var tm=cell(tr,r.team,'l');tm.style.color='var(--ink2)';}
+    cell(tr,r.pts,'pt');
+    var bt=cell(tr,'','bar');var bi=document.createElement('i');bi.style.width=(100*r.pts/max)+'%';bt.appendChild(bi);
+    body.appendChild(tr);
+  });
+}
+function fillDataTable(){
+  var tb=document.getElementById('datatable');
+  var body=head(tb,['Manche'].concat(drivers.map(function(d){return d.name;})),[0]);
+  rounds.forEach(function(rd,i){
+    var tr=document.createElement('tr');cell(tr,rd.round+'. '+rd.name);
+    drivers.forEach(function(d){cell(tr,d.pts[i]);});body.appendChild(tr);
+  });
+  var tr=document.createElement('tr');cell(tr,'Total').style.fontWeight='650';
+  drivers.forEach(function(d){cell(tr,d.cum[n-1]||0).style.fontWeight='650';});body.appendChild(tr);
+}
+
+/* ---------- apply a model to the page ---------- */
+function frDate(iso){
+  var d=new Date(iso+'T12:00:00');
+  return isNaN(d)?iso:d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+}
+function apply(m,stamp,offline){
+  model=m;rounds=m.rounds;drivers=m.drivers;n=rounds.length;
+  txt('h1','Classement F1 '+m.season);
+  var when=new Date(stamp).toLocaleString('fr-FR',{day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'});
+  txt('status',(n?'Après '+n+' manche'+(n>1?'s':'')+' sur '+m.total+'. ':'Aucune course disputée pour l’instant. ')+
+    (offline?'Données enregistrées le ':'Actualisé le ')+when+'.');
+  var s0=m.standings[0];
+  txt('heroPts',s0?String(s0.pts):'–');
+  txt('heroLbl',s0?'points pour '+s0.name+', en tête du championnat':'');
+  var t0=m.teams[0];
+  txt('f1v',t0?t0.name:'–');txt('f1d',t0?t0.pts+' points, en tête des constructeurs':'');
+  txt('f2v',m.last?'GP '+m.last.name:'–');txt('f2d',m.last&&m.last.winner?'Victoire de '+m.last.winner+'.':'');
+  txt('f3v',m.next?'GP '+m.next.name.replace(' Grand Prix',''):'Saison terminée');
+  txt('f3d',m.next?frDate(m.next.date)+'.':'');
+  buildLegend();
+  fillDataTable();
+  fillStandings('drivers',m.standings,true);
+  fillStandings('teams',m.teams,false);
+  setMode(mode);
+}
+
+/* ---------- loading, cache, auto refresh ---------- */
+var errBox=document.getElementById('err'), btn=document.getElementById('refresh');
+function showErr(s){errBox.textContent=s;errBox.hidden=!s;}
+function saveCache(m){try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),m:m}));}catch(e){}}
+function readCache(){try{var c=JSON.parse(localStorage.getItem(CACHE_KEY));return c&&c.m?c:null;}catch(e){return null;}}
+function refresh(){
+  btn.disabled=true;btn.textContent='Actualisation…';
+  return fetchModel().then(function(m){
+    lastFetch=Date.now();saveCache(m);showErr('');apply(m,lastFetch,false);
+  }).catch(function(){
+    var c=readCache();
+    if(c){apply(c.m,c.t,true);showErr('Impossible de joindre l’API pour l’instant. Les derniers classements enregistrés sont affichés.');}
+    else{showErr('Impossible de charger les classements. Vérifie ta connexion puis clique sur Actualiser.');txt('status','Classements indisponibles.');}
+  }).then(function(){btn.disabled=false;btn.textContent='Actualiser';});
+}
+btn.addEventListener('click',refresh);
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&Date.now()-lastFetch>10*60*1000)refresh();
+});
+setInterval(function(){if(!document.hidden)refresh();},30*60*1000);
+
+if(window.ResizeObserver){var lastW=0;new ResizeObserver(function(){var w=host.clientWidth;if(w!==lastW){lastW=w;render();}}).observe(host);}
+else window.addEventListener('resize',render);
+
+var cached=readCache();
+if(cached)apply(cached.m,cached.t,true);
+refresh();
+})();
+
+</script>
+</body>
+</html>
