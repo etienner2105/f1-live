@@ -1,4 +1,4 @@
-const CACHE = 'f1-live-v3';
+const CACHE = 'f1-live-v4';
 const SHELL = ['./', 'index.html', 'css/app.css', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png',
   'js/main.js', 'js/api.js', 'js/model.js', 'js/util.js', 'js/charts.js',
   'js/views/common.js', 'js/views/evolution.js', 'js/views/dashboard.js', 'js/views/standings.js', 'js/views/quali.js',

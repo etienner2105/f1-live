@@ -100,7 +100,7 @@ function renderRoute({ keepScroll = false, focus = false } = {}) {
   nav.querySelectorAll('a').forEach((a) => {
     if (a.dataset.id === item.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
-  document.title = `${item.label} · Paddock`;
+  document.title = `${item.label} · F1 Live`;
   const y = window.scrollY;
   clear(main);
   if (!state.S) {

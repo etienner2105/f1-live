@@ -1,8 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
 <rect width="512" height="512" fill="#0a0a0b"/>
-<g transform="translate(256 256) skewX(-12) translate(-256 -256)">
-<path d="M158 124h132c58 0 94 34 94 84s-36 84-94 84h-58v96h-74z M232 186v40h50c18 0 28-8 28-20s-10-20-28-20z" fill="#e10600" fill-rule="evenodd"/>
+<g transform="translate(256 256) skewX(-12) translate(-210 -256)">
+<path d="M70 150H200V200H128V246H190V294H128V362H70Z" fill="#e10600"/>
+<path d="M252 176L300 150H350V362H292V206L252 218Z" fill="#f5f5f6"/>
 </g>
-<g fill="#f5f5f6"><rect x="96" y="408" width="320" height="14" rx="2"/></g>
-<g fill="#e10600"><rect x="96" y="408" width="40" height="14"/><rect x="176" y="408" width="40" height="14"/><rect x="256" y="408" width="40" height="14"/><rect x="336" y="408" width="40" height="14"/></g>
+<g fill="#e10600"><rect x="96" y="440" width="40" height="12"/><rect x="176" y="440" width="40" height="12"/><rect x="256" y="440" width="40" height="12"/><rect x="336" y="440" width="40" height="12"/></g>
+<g fill="#f5f5f6"><rect x="136" y="440" width="40" height="12"/><rect x="216" y="440" width="40" height="12"/><rect x="296" y="440" width="40" height="12"/><rect x="376" y="440" width="40" height="12"/></g>
 </svg>
