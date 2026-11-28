@@ -100,7 +100,7 @@ function renderRoute({ keepScroll = false, focus = false } = {}) {
   nav.querySelectorAll('a').forEach((a) => {
     if (a.dataset.id === item.id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   });
-  document.title = `${item.label} · Classement F1 2026`;
+  document.title = `${item.label} · Paddock`;
   const y = window.scrollY;
   clear(main);
   if (!state.S) {

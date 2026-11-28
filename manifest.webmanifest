@@ -1,6 +1,6 @@
 {
-  "name": "Classement F1 2026",
-  "short_name": "F1 Live",
+  "name": "Paddock, suivi F1 2026",
+  "short_name": "Paddock",
   "description": "Classements pilotes et constructeurs de la saison F1, mis à jour après chaque Grand Prix.",
   "lang": "fr",
   "start_url": "./",

@@ -1,4 +1,4 @@
-# Classement F1 2026
+# Paddock, suivi de la saison F1 2026
 
 Application web (installable) de suivi de la saison de Formule 1 : tableau de bord, classements, Grands Prix, rejeu de course, pilotes, écuries, qualifications, météo, actualités et comparateur de pilotes.
 

@@ -4,15 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0b">
-<meta name="description" content="Classement F1 2026 : classements, Grands Prix, rejeu de course, statistiques, météo, qualifications et comparateur de pilotes.">
+<meta name="description" content="Paddock, suivi de la saison F1 2026 : classements, Grands Prix, rejeu de course, statistiques, météo, qualifications et comparateur de pilotes.">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="F1 2026">
+<meta name="apple-mobile-web-app-title" content="Paddock">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="icon" href="icon-192.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<title>Classement F1 2026</title>
+<title>Paddock · F1 2026</title>
 <script>
   // Applique le thème avant l'affichage pour éviter un flash.
   try { document.documentElement.dataset.theme = JSON.parse(localStorage.getItem('f1v2:theme')) || 'dark'; } catch (e) { document.documentElement.dataset.theme = 'dark'; }
@@ -23,9 +23,9 @@
 <a class="skip" href="#main">Aller au contenu</a>
 <div class="app">
   <aside class="side" id="side" aria-label="Navigation principale">
-    <a class="brand" href="#/" aria-label="Classement F1 2026, accueil">
-      <span class="mark" aria-hidden="true">F1</span>
-      <span class="brand-t"><b>Classement</b><i>F1 2026</i></span>
+    <a class="brand" href="#/" aria-label="Paddock, accueil">
+      <span class="mark" aria-hidden="true">P</span>
+      <span class="brand-t"><b>Paddock</b><i>Saison F1 2026</i></span>
     </a>
     <nav><ul id="nav" class="nav"></ul></nav>
     <div class="side-foot">
@@ -39,7 +39,7 @@
       <button type="button" class="icon-btn" id="menu-btn" aria-label="Ouvrir le menu" aria-controls="side" aria-expanded="false">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
       </button>
-      <span class="top-title">Classement <b>F1 2026</b></span>
+      <span class="top-title"><b>Paddock</b> F1 2026</span>
       <span class="status" id="status" role="status" aria-live="polite"></span>
       <button type="button" class="btn small" id="refresh">Actualiser</button>
     </header>
